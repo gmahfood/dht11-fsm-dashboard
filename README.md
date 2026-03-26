@@ -12,16 +12,6 @@
 
 ---
 
-## Sponsored by PCBWay
-
-This project is proudly sponsored by **[PCBWay](https://www.pcbway.com)** — a professional PCB prototyping and manufacturing service trusted by engineers, hobbyists, and makers worldwide.
-
-PCBWay provided free PCB prototyping support for this project, allowing the breadboard circuit to be translated into a clean, production-quality board. If you are working on your own embedded or electronics project and need reliable PCB fabrication at a great price, PCBWay is worth checking out.
-
-[![PCBWay](https://img.shields.io/badge/Sponsored%20by-PCBWay-green)](https://www.pcbway.com)
-
----
-
 ## Table of Contents
 
 - [Overview](#overview)
