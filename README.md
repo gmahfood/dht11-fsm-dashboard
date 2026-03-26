@@ -1,37 +1,150 @@
-# Embedded Sensor Dashboard
-### Arduino Uno R3 · C++17 · PlatformIO
+# dht11-fsm-dashboard
 
-A beginner-to-portfolio embedded C++ project that reads temperature and humidity
-from a DHT11 sensor, applies a moving-average filter, and drives a finite state
-machine alert system — all without dynamic memory allocation.
+> A real-time embedded sensor monitoring system built in C++ for the Arduino Uno R3.  
+> Implements a finite state machine with hardware alert output, a compile-time circular buffer  
+> for noise filtering, and a fully modular library architecture with zero dynamic memory allocation.
+
+![Platform](https://img.shields.io/badge/platform-Arduino%20Uno%20R3-00979D?logo=arduino)
+![Language](https://img.shields.io/badge/language-C%2B%2B17-blue)
+![Build](https://img.shields.io/badge/build-PlatformIO-orange)
+![Memory](https://img.shields.io/badge/heap%20usage-zero-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
+
+---
+
+## Sponsored by PCBWay
+
+This project is proudly sponsored by **[PCBWay](https://www.pcbway.com)** — a professional PCB prototyping and manufacturing service trusted by engineers, hobbyists, and makers worldwide.
+
+PCBWay provided free PCB prototyping support for this project, allowing the breadboard circuit to be translated into a clean, production-quality board. If you are working on your own embedded or electronics project and need reliable PCB fabrication at a great price, PCBWay is worth checking out.
+
+[![PCBWay](https://img.shields.io/badge/Sponsored%20by-PCBWay-green)](https://www.pcbway.com)
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [System Architecture](#system-architecture)
+- [Hardware](#hardware)
+  - [Components](#components)
+  - [Wiring Diagram](#wiring-diagram)
+- [Project Structure](#project-structure)
+- [Key C++ Concepts](#key-c-concepts)
+  - [Circular Buffer Template](#circular-buffer-template)
+  - [Finite State Machine](#finite-state-machine)
+  - [Non-Blocking Timing](#non-blocking-timing)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Upload & Run](#upload--run)
+- [Serial Output](#serial-output)
+- [Configuration](#configuration)
+- [Roadmap](#roadmap)
+- [Why This Project](#why-this-project)
+- [License](#license)
+
+---
+
+## Overview
+
+`dht11-fsm-dashboard` is a from-scratch embedded C++ project targeting the **Arduino Uno R3**
+(ATmega328P, 8-bit AVR, 2KB SRAM, 32KB Flash). It reads temperature and humidity from a
+**DHT11 sensor**, filters noisy readings using a **moving average over a fixed-size circular
+buffer**, and drives a **three-state finite state machine** that controls an LED alert output
+based on configurable thresholds.
+
+The project is intentionally structured as a **multi-library C++ codebase** rather than a
+single-file Arduino sketch, mirroring how real firmware teams organize production code.
 
 ---
 
 ## Features
 
-| Feature | Details |
+| Feature | Implementation |
 |---|---|
-| **Sensor reading** | DHT11 via Adafruit library |
-| **Noise filtering** | 5-sample circular buffer moving average |
-| **Alert FSM** | OK → WARNING → CRITICAL states |
-| **Non-blocking timing** | `millis()`-based, no `delay()` |
-| **UART output** | Structured data at 9600 baud |
-| **Zero heap use** | All buffers fixed at compile time |
+| Sensor reading | DHT11 over single-wire GPIO |
+| Noise filtering | 5-sample moving average via `CircularBuffer<T, N>` |
+| Alert logic | 3-state FSM: `OK` → `WARNING` → `CRITICAL` |
+| Hardware output | LED driven HIGH on `CRITICAL` state |
+| Timing | Non-blocking `millis()` pattern, no `delay()` |
+| Serial output | Structured UART at 9600 baud |
+| Memory safety | Zero heap allocation, no `new` / `delete` / `malloc` |
+| Build system | PlatformIO with C++17 flags |
+| Modularity | 3 decoupled libraries: SensorLib, AlertLib, BufferLib |
 
 ---
 
-## Wiring
+## System Architecture
 
 ```
-DHT11 Sensor        Arduino Uno R3
-─────────────       ──────────────
-VCC  ──────────────  5V
-GND  ──────────────  GND
-DATA ──────────────  D2
+┌─────────────────────────────────────────────────────┐
+│                    main.cpp                         │
+│  setup() / loop() — orchestrates timing & I/O       │
+└────────────┬──────────────────┬─────────────────────┘
+             │                  │
+     ┌───────▼──────┐   ┌───────▼────────┐
+     │  SensorLib   │   │   AlertLib     │
+     │  Sensor.h/.cpp│  │  AlertSystem   │
+     │               │  │  .h/.cpp       │
+     │  DHT11 wrap   │  │                │
+     │  Reads raw    │  │  FSM States:   │
+     │  temp & hum   │  │  OK            │
+     │  Pushes to    │  │  WARNING       │
+     │  buffer       │  │  CRITICAL      │
+     └───────┬───────┘  └───────┬────────┘
+             │                  │
+     ┌───────▼──────────────────▼────────┐
+     │            BufferLib              │
+     │       CircularBuffer<T, N>        │
+     │                                   │
+     │  Fixed-size ring buffer template  │
+     │  Compile-time capacity (no heap)  │
+     │  O(1) push, O(N) average          │
+     └───────────────────────────────────┘
 
-LED (alert)         Arduino Uno R3
-─────────────       ──────────────
-Built-in LED (D13) used for CRITICAL alert
+Hardware Layer
+──────────────
+DHT11 ──── D2 (GPIO)      reads every 2000ms
+LED   ──── D13 (GPIO)     driven HIGH on CRITICAL state
+UART  ──── USB Serial     prints summary every 5000ms
+```
+
+---
+
+## Hardware
+
+### Kit
+
+This project was built using the **SunFounder Inventor Lab Starter Kit** which includes the original Arduino Uno R3 and all supporting components needed to get started with embedded development.
+
+### Components Used
+
+| Part | Source | Notes |
+|---|---|---|
+| Original Arduino Uno R3 | SunFounder Inventor Lab Kit | ATmega328P, 16MHz, 5V, ATmega16U2 USB chip |
+| 830-hole Breadboard | SunFounder Inventor Lab Kit | Used for prototyping all connections |
+| Jumper Wires | SunFounder Inventor Lab Kit | Male-to-male, 3 wires for DHT11 |
+| USB Cable (USB-A to USB-B) | SunFounder Inventor Lab Kit | Powers and programs the board |
+| DHT11 Temperature and Humidity Sensor | WWZMDiB (ordered separately) | 3-pin PCB module, pull-up resistor built in |
+
+### Wiring Diagram
+
+```
+Arduino Uno R3          DHT11 Sensor
+──────────────          ────────────
+5V  ────────────────── VCC  (pin 1)
+GND ────────────────── GND  (pin 4)
+D2  ────────────────── DATA (pin 2)
+
+Note: The WWZMDiB DHT11 module has a built-in pull-up resistor
+on the DATA line so no external resistor is needed.
+
+Alert Output:
+D13 — Built-in LED (no wiring needed)
+     OR
+D13 — 220Ω resistor — External LED anode — GND
 ```
 
 ---
@@ -39,80 +152,243 @@ Built-in LED (D13) used for CRITICAL alert
 ## Project Structure
 
 ```
-embedded-sensor-dashboard/
-├── platformio.ini          # Build config, board, libraries
+dht11-fsm-dashboard/
+│
+├── platformio.ini              # Board target, build flags, library deps
+│
 ├── src/
-│   └── main.cpp            # Entry point — setup() and loop()
+│   └── main.cpp                # Entry point, setup(), loop(), timing logic
+│
 ├── lib/
 │   ├── SensorLib/
-│   │   ├── Sensor.h        # DHT11 wrapper with smoothing
+│   │   ├── Sensor.h            # DHT11 wrapper, reads, validates, buffers data
 │   │   └── Sensor.cpp
+│   │
 │   ├── AlertLib/
-│   │   ├── AlertSystem.h   # Finite state machine (OK/WARNING/CRITICAL)
-│   │   └── AlertSystem.cpp
+│   │   ├── AlertSystem.h       # FSM definition, states, thresholds, transitions
+│   │   └── AlertSystem.cpp     # State evaluation, LED control, label output
+│   │
 │   └── BufferLib/
-│       └── CircularBuffer.h  # Generic fixed-size ring buffer (template)
-└── docs/
-    └── wiring.md
+│       └── CircularBuffer.h    # Generic fixed-size ring buffer (header-only template)
+│
+└── README.md
 ```
+
+Each library is **self-contained**. `SensorLib` depends on `BufferLib`,
+`AlertLib` is fully independent, and `main.cpp` depends on both.
+This mirrors real firmware team conventions where modules are tested and
+reviewed in isolation.
+
+---
+
+## Key C++ Concepts
+
+### Circular Buffer Template
+
+`CircularBuffer<T, N>` is a header-only, fully generic ring buffer with
+compile-time capacity. It uses **no dynamic memory** — the internal array
+is stack-allocated at the size `N` provided as a template parameter.
+
+```cpp
+// Zero-cost abstraction: capacity set at compile time
+CircularBuffer<float, 5> tempHistory;
+
+tempHistory.push(24.3f);   // O(1) insert
+tempHistory.average();     // 5-sample moving average
+tempHistory.size();        // how many values stored so far
+```
+
+Key design decisions:
+- `uint8_t` used for index and count, saves SRAM on 8-bit MCU
+- Overwrites oldest value when full (ring semantics)
+- `operator[]` provides logical index access (0 = oldest)
+- Template allows reuse for any numeric type
+
+### Finite State Machine
+
+`AlertSystem` implements a classic embedded FSM with three states driven
+by live sensor thresholds. State transitions are evaluated on every sensor
+update and only hardware output and internal state change when a transition occurs.
+
+```
+         temp < 28°C AND hum < 70%
+    ┌──────────────────────────────────┐
+    │                                  │
+  ┌─▼─┐   temp ≥ 28°C OR hum ≥ 70%  ┌─▼───────┐
+  │ OK│ ─────────────────────────────► WARNING  │
+  └───┘                               └────┬────┘
+    ▲                                       │
+    │      temp ≥ 35°C OR hum ≥ 85%        │
+    │   ┌──────────────────────────────────►│
+    │   │                               ┌───▼──────┐
+    └───┤  all readings back in range   │ CRITICAL │
+        └───────────────────────────────┤  LED ON  │
+                                        └──────────┘
+```
+
+```cpp
+// Thresholds are configurable at startup via a struct
+constexpr Thresholds THRESHOLDS = {
+    .tempWarning  = 28.0f,
+    .tempCritical = 35.0f,
+    .humWarning   = 70.0f,
+    .humCritical  = 85.0f
+};
+```
+
+`enum class AlertState` is used instead of plain `enum` or `#define` constants,
+providing scoped, type-safe state values that prevent accidental integer comparisons.
+
+### Non-Blocking Timing
+
+No `delay()` is used anywhere in the codebase. All timing uses the
+`millis()` delta pattern, which is standard practice in real embedded systems
+where blocking calls prevent the processor from handling other tasks.
+
+```cpp
+uint32_t lastReadMs = 0;
+
+void loop() {
+    uint32_t now = millis();
+
+    if (now - lastReadMs >= READ_INTERVAL_MS) {
+        lastReadMs = now;
+        sensor.read();   // only called every 2 seconds
+    }
+}
+```
+
+This pattern scales cleanly. Adding a second sensor, an LCD update,
+or a button debounce follows the same structure with no interference.
 
 ---
 
 ## Getting Started
 
-### 1. Install tools
-- [VS Code](https://code.visualstudio.com/)
-- [PlatformIO extension](https://platformio.org/install/ide?install=vscode)
+### Prerequisites
 
-### 2. Clone and open
+- [VS Code](https://code.visualstudio.com/) (download Apple Silicon build for M-series Macs)
+- [PlatformIO IDE extension](https://marketplace.visualstudio.com/items?itemName=platformio.platformio-ide)
+- USB-A to USB-B cable (included in the SunFounder kit)
+- USB-C adapter if using a MacBook Air or Pro with only USB-C ports
+
+### Installation
+
 ```bash
-git clone <your-repo-url>
-cd embedded-sensor-dashboard
+# Clone the repository
+git clone https://github.com/gmahfood/dht11-fsm-dashboard.git
+cd dht11-fsm-dashboard
+
+# Open in VS Code
 code .
 ```
-PlatformIO will auto-install all library dependencies.
 
-### 3. Upload
-Connect your Arduino Uno via USB, then click **Upload** (→) in PlatformIO,
-or run:
-```bash
-pio run --target upload
-```
+PlatformIO will automatically detect `platformio.ini` and download all
+library dependencies (`DHT sensor library`, `Adafruit Unified Sensor`)
+on first build. No manual library installation required.
 
-### 4. Monitor serial output
+### Upload & Run
+
+1. Connect your Arduino Uno R3 via USB
+2. In VS Code, click the **Upload** button in the PlatformIO toolbar
+3. Wait for `SUCCESS` in the terminal output
+4. Open the serial monitor:
+
 ```bash
 pio device monitor
+# or use the plug icon in the PlatformIO toolbar
 ```
-You should see:
+
+**macOS users:** If the port is not detected, check System Settings →
+Privacy & Security → allow the USB serial driver.
+
+---
+
+## Serial Output
+
+At 9600 baud over USB serial:
+
 ```
 === Embedded Sensor Dashboard ===
 Temp(C) | Humidity(%) | State
 ---------------------------------
 Temp: 24.3°C  |  Hum: 55.2%  |  State: OK
+Temp: 24.4°C  |  Hum: 55.5%  |  State: OK
+Temp: 29.1°C  |  Hum: 71.3%  |  State: WARNING
+Temp: 36.0°C  |  Hum: 86.2%  |  State: CRITICAL
+```
+
+Readings are printed every **5 seconds**. The sensor is sampled every
+**2 seconds** (DHT11 minimum sampling interval) and values are averaged
+across the last 5 samples before display.
+
+If a read fails due to bad wiring or the sensor not being ready, a warning is printed:
+```
+[WARN] Sensor read failed — check wiring
 ```
 
 ---
 
-## Key C++ Concepts Demonstrated
+## Configuration
 
-- **Classes & encapsulation** — `Sensor`, `AlertSystem`, `CircularBuffer`
-- **Templates** — `CircularBuffer<T, N>` with compile-time size
-- **Enums** — `enum class AlertState` for type-safe FSM states
-- **`constexpr`** — compile-time constants instead of `#define`
-- **Non-blocking loops** — `millis()` pattern instead of `delay()`
-- **No dynamic memory** — no `new`/`delete`, safe for embedded targets
+All tuneable values are `constexpr` constants in `main.cpp`:
+
+```cpp
+constexpr uint8_t  DHT_PIN           = 2;      // Change to your wiring
+constexpr uint8_t  LED_PIN           = 13;     // D13 = built-in LED
+constexpr uint32_t READ_INTERVAL_MS  = 2000;   // DHT11 minimum: 1000ms
+constexpr uint32_t PRINT_INTERVAL_MS = 5000;   // Serial output frequency
+
+constexpr Thresholds THRESHOLDS = {
+    .tempWarning  = 28.0f,   // °C
+    .tempCritical = 35.0f,   // °C
+    .humWarning   = 70.0f,   // %
+    .humCritical  = 85.0f    // %
+};
+```
+
+To use a **DHT22** instead of DHT11, update one line in `src/main.cpp`:
+```cpp
+// Change this:
+Sensor sensor(DHT_PIN, DHT11);
+// To this:
+Sensor sensor(DHT_PIN, DHT22);
+```
 
 ---
 
-## Extending This Project (ideas for later)
+## Roadmap
 
-- [ ] Add an LCD display (I2C) to show readings without a PC
-- [ ] Log readings to SD card with timestamps
-- [ ] Add a second sensor (soil moisture, light level)
-- [ ] Implement EEPROM persistence for thresholds
-- [ ] Add a pushbutton to silence CRITICAL alerts
+- [ ] I2C LCD display (16x2) to show readings without a PC connected
+- [ ] SD card data logging with timestamps via SPI
+- [ ] EEPROM persistence to save thresholds across power cycles
+- [ ] Push-button to silence CRITICAL alert with debounce
+- [ ] Second sensor input (soil moisture or light level)
+- [ ] Custom PCBWay PCB to replace the breadboard prototype
+- [ ] Unit tests with `googletest` on host machine
+
+---
+
+## Why This Project
+
+Most Arduino tutorials produce single-file `.ino` sketches with global
+variables and `delay()` calls. This project deliberately avoids all of
+that. The goal was to write C++ the way it would be written in a
+professional embedded or robotics context:
+
+- **Encapsulation** over global state
+- **Templates** for zero-cost generic data structures
+- **`enum class`** over raw integers for type safety
+- **`constexpr`** over `#define` for compile-time constants
+- **Non-blocking loops** over `delay()` for real-time readiness
+- **Modular libraries** over monolithic sketches for testability
+
+This architecture scales. The same patterns used here, FSMs, ring
+buffers, and hardware abstraction classes, appear in production firmware
+for medical devices, automotive ECUs, and robotics controllers.
 
 ---
 
 ## License
-MIT — free to use, modify, and share.
+
+MIT — free to use, modify, and build on.
