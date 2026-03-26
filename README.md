@@ -119,6 +119,20 @@ This project was built using the **SunFounder Inventor Lab Starter Kit** which i
 | USB Cable (USB-A to USB-B) | SunFounder Inventor Lab Kit | Powers and programs the board |
 | DHT11 Temperature and Humidity Sensor | WWZMDiB (ordered separately) | 3-pin PCB module, pull-up resistor built in |
 
+### Build Photos
+
+![Full Setup](docs/setup.jpeg)
+*Full setup — Arduino Uno R3, breadboard, DHT11 sensor, and RAB holder*
+
+![DHT11 Wiring](docs/wiring.jpeg)
+*DHT11 module wired into the breadboard — power, data, and ground connections*
+
+![Arduino Board](docs/arduino.jpeg)
+*Arduino Uno R3 with digital pin connections and green power LED*
+
+![Live Serial Output](docs/output.jpeg)
+*Live sensor data streaming in VS Code — temperature, humidity, and FSM state*
+
 ### Wiring Diagram
 
 ```
