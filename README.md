@@ -122,16 +122,16 @@ This project was built using the **SunFounder Inventor Lab Starter Kit** which i
 ### Build Photos
 
 ![Full Setup](docs/setup.jpeg)
-*Full setup — Arduino Uno R3, breadboard, DHT11 sensor, and RAB holder*
+*Full setup showing the Arduino Uno R3, breadboard, DHT11 sensor, and RAB holder*
 
 ![DHT11 Wiring](docs/wiring.jpeg)
-*DHT11 module wired into the breadboard — power, data, and ground connections*
+*DHT11 module wired into the breadboard with power, data, and ground connections*
 
 ![Arduino Board](docs/arduino.jpeg)
-*Arduino Uno R3 with digital pin connections and green power LED*
+*Arduino Uno R3 with digital pin connections and green power LED lit*
 
 ![Live Serial Output](docs/output.jpeg)
-*Live sensor data streaming in VS Code — temperature, humidity, and FSM state*
+*Live sensor data streaming in VS Code showing temperature, humidity, and FSM state*
 
 ### Wiring Diagram
 
@@ -146,9 +146,9 @@ Note: The WWZMDiB DHT11 module has a built-in pull-up resistor
 on the DATA line so no external resistor is needed.
 
 Alert Output:
-D13 — Built-in LED (no wiring needed)
+D13 connected to built-in LED (no wiring needed)
      OR
-D13 — 220Ω resistor — External LED anode — GND
+D13 connected through a 220Ω resistor to an external LED anode to GND
 ```
 
 ---
@@ -190,7 +190,7 @@ reviewed in isolation.
 ### Circular Buffer Template
 
 `CircularBuffer<T, N>` is a header-only, fully generic ring buffer with
-compile-time capacity. It uses **no dynamic memory** — the internal array
+compile-time capacity. It uses **no dynamic memory** and the internal array
 is stack-allocated at the size `N` provided as a template parameter.
 
 ```cpp
@@ -328,7 +328,7 @@ across the last 5 samples before display.
 
 If a read fails due to bad wiring or the sensor not being ready, a warning is printed:
 ```
-[WARN] Sensor read failed — check wiring
+[WARN] Sensor read failed, check wiring
 ```
 
 ---
@@ -395,4 +395,4 @@ for medical devices, automotive ECUs, and robotics controllers.
 
 ## License
 
-MIT — free to use, modify, and build on.
+MIT, free to use, modify, and build on.
