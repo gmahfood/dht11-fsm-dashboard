@@ -396,6 +396,7 @@ Sensor sensor(DHT_PIN, DHT22);
 - [ ] EEPROM persistence to save thresholds across power cycles
 - [ ] Push-button to silence CRITICAL alert with debounce
 - [ ] Second sensor input (soil moisture or light level)
+- [ ] Custom 3D printed enclosure designed for the Bambu Labs P2S — housing the PCB and LCD in a clean package
 - [x] Custom PCBWay PCB designed in EasyEDA & fabricated by PCBWay *(first PCB design!)*
 - [ ] Unit tests with `googletest` on host machine
 
