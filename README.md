@@ -20,6 +20,7 @@
 - [Hardware](#hardware)
   - [Components](#components)
   - [Wiring Diagram](#wiring-diagram)
+- [PCB Design](#pcb-design)
 - [Project Structure](#project-structure)
 - [Key C++ Concepts](#key-c-concepts)
   - [Circular Buffer Template](#circular-buffer-template)
@@ -153,6 +154,30 @@ D13 connected through a 220Ω resistor to an external LED anode to GND
 
 ---
 
+## PCB Design
+
+This project includes a custom PCB design created in [EasyEDA](https://easyeda.com), fabricated by [PCBWay](https://www.pcbway.com).
+
+This was my first PCB design — the board breaks out the Arduino Uno R3, DHT11 sensor, and LED alert circuit into a clean 2-layer layout (130x87mm).
+
+[![PCBWay](https://www.pcbway.com/project/img/images/frompcbway-1220.png)](https://www.pcbway.com)
+
+### Board Specs
+
+| Spec | Value |
+|---|---|
+| Dimensions | 130mm x 87mm |
+| Layers | 2 |
+| Thickness | 1.6mm |
+| Surface Finish | HASL |
+| Copper Weight | 1oz |
+
+### Files
+
+- Gerber files are located in the `/hardware` folder
+
+---
+
 ## Project Structure
 
 ```
@@ -174,6 +199,9 @@ dht11-fsm-dashboard/
 │   │
 │   └── BufferLib/
 │       └── CircularBuffer.h    # Generic fixed-size ring buffer (header-only template)
+│
+├── hardware/
+│   └── gerber files            # PCB fabrication files for PCBWay
 │
 └── README.md
 ```
@@ -368,7 +396,7 @@ Sensor sensor(DHT_PIN, DHT22);
 - [ ] EEPROM persistence to save thresholds across power cycles
 - [ ] Push-button to silence CRITICAL alert with debounce
 - [ ] Second sensor input (soil moisture or light level)
-- [ ] Custom PCBWay PCB to replace the breadboard prototype
+- [x] Custom PCBWay PCB designed in EasyEDA & fabricated by PCBWay *(first PCB design!)*
 - [ ] Unit tests with `googletest` on host machine
 
 ---
