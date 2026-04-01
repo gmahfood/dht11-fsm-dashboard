@@ -299,10 +299,10 @@ or a button debounce follows the same structure with no interference.
 
 ### Prerequisites
 
-- [VS Code](https://code.visualstudio.com/) (download Apple Silicon build for M-series Macs)
+- [VS Code](https://code.visualstudio.com/) 
 - [PlatformIO IDE extension](https://marketplace.visualstudio.com/items?itemName=platformio.platformio-ide)
 - USB-A to USB-B cable (included in the SunFounder kit)
-- USB-C adapter if using a MacBook Air or Pro with only USB-C ports
+- USB-C adapter if using a device with only USB-C ports
 
 ### Installation
 
