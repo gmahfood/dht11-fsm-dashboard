@@ -50,33 +50,29 @@ uint32_t lastLcdMs   = 0;
 // =============================================================
 //  LCD Helper — formats and writes data to the 20x4 display
 // =============================================================
-//  Row 0: " BAREMETAL  LABS    "
-//  Row 1: " Temp:  XX.X C     "
-//  Row 2: " Hum:   XX.X %     "
-//  Row 3: " State: XXXXXXX    "
+//  Row 0: "BAREMETAL LABS"
+//  Row 1: "Temp:  XX.X C"
+//  Row 2: "Hum:   XX.X %"
+//  Row 3: "State: XXXXXXX"
 // =============================================================
 void updateLcd(float temp, float hum, const char* state) {
-    // Row 0 — Project branding (static, but rewritten for simplicity)
     lcd.setCursor(0, 0);
-    lcd.print(F(" BAREMETAL  LABS    "));
+    lcd.print("BAREMETAL LABS");
 
-    // Row 1 — Temperature
     lcd.setCursor(0, 1);
-    lcd.print(F(" Temp:  "));
+    lcd.print("Temp:  ");
     lcd.print(temp, 1);
-    lcd.print(F(" C      "));
+    lcd.print(" C    ");
 
-    // Row 2 — Humidity
     lcd.setCursor(0, 2);
-    lcd.print(F(" Hum:   "));
+    lcd.print("Hum:   ");
     lcd.print(hum, 1);
-    lcd.print(F(" %      "));
+    lcd.print(" %    ");
 
-    // Row 3 — FSM State
     lcd.setCursor(0, 3);
-    lcd.print(F(" State: "));
+    lcd.print("State: ");
     lcd.print(state);
-    lcd.print(F("            "));  // Clear remaining chars on the row
+    lcd.print("        ");
 }
 
 // =============================================================
@@ -95,20 +91,19 @@ void setup() {
 
     // Startup splash screen
     lcd.setCursor(0, 0);
-    lcd.print(F(" BAREMETAL  LABS    "));
+    lcd.print("BAREMETAL LABS");
     lcd.setCursor(0, 1);
-    lcd.print(F("  Sensor Dashboard "));
+    lcd.print("Sensor Dashboard");
     lcd.setCursor(0, 2);
-    lcd.print(F("   Initializing... "));
+    lcd.print("Initializing...");
     lcd.setCursor(0, 3);
-    lcd.print(F("     v1.0          "));
+    lcd.print("v1.0");
 
     Serial.println(F("=== Embedded Sensor Dashboard ==="));
     Serial.println(F("Temp(C) | Humidity(%) | State"));
     Serial.println(F("---------------------------------"));
 
     delay(2000);  // Show splash for 2s, only blocking call in the project
-    lcd.clear();
 }
 
 // =============================================================
@@ -128,7 +123,7 @@ void loop() {
 
             // Show error on LCD
             lcd.setCursor(0, 3);
-            lcd.print(F(" [WARN] CHECK WIRE  "));
+            lcd.print("[WARN] CHECK WIRE   ");
         }
     }
 
